@@ -104,6 +104,7 @@ typedef enum si_flags
 	SI_IS_ANY = (1 << 3),
 	SI_IS_MHOMED = (1 << 4),
 	SI_IS_VIRTUAL = (1 << 5),
+	SI_IS_HAPROXY = (1 << 6),
 } si_flags_t;
 
 typedef struct addr_info

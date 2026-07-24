@@ -1156,6 +1156,17 @@ socket_info_t *add_listen_socket_info(char *name, struct name_lst *addr_l,
 	unsigned short c_port;
 
 	c_proto = (proto != PROTO_NONE) ? proto : PROTO_UDP;
+	/* warn if haproxy flag is set on a non-stream protocol */
+	if((flags & SI_IS_HAPROXY)
+			&& (c_proto == PROTO_UDP
+#ifdef USE_SCTP
+					|| c_proto == PROTO_SCTP
+#endif
+					)) {
+		LM_WARN("haproxy flag ignored for non-stream listener %s:%d/%s\n",
+				name, (int)port, get_proto_name(c_proto));
+		flags &= ~SI_IS_HAPROXY;
+	}
 	do {
 		list = get_sock_info_list(c_proto);
 		if(list == 0) /* disabled or unknown protocol */
@@ -2482,20 +2493,22 @@ void print_all_socket_lists()
 				for(ai = si->addr_info_lst; ai; ai = ai->next) {
 					printf(", %s", ai->address_str.s);
 				}
-				printf("):%s%s%s%s\n", si->port_no_str.s,
+				printf("):%s%s%s%s%s\n", si->port_no_str.s,
 						si->flags & SI_IS_MCAST ? " mcast" : "",
 						si->flags & SI_IS_MHOMED ? " mhomed" : "",
-						si->flags & SI_IS_VIRTUAL ? " virtual" : "");
+						si->flags & SI_IS_VIRTUAL ? " virtual" : "",
+						si->flags & SI_IS_HAPROXY ? " haproxy" : "");
 			} else {
 				printf("             %s: %s", get_valid_proto_name(proto),
 						si->name.s);
 				if(!(si->flags & SI_IS_IP)) {
 					printf(" [%s]", si->address_str.s);
 				}
-				printf(":%s%s%s%s", si->port_no_str.s,
+				printf(":%s%s%s%s%s", si->port_no_str.s,
 						si->flags & SI_IS_MCAST ? " mcast" : "",
 						si->flags & SI_IS_MHOMED ? " mhomed" : "",
-						si->flags & SI_IS_VIRTUAL ? " virtual" : "");
+						si->flags & SI_IS_VIRTUAL ? " virtual" : "",
+						si->flags & SI_IS_HAPROXY ? " haproxy" : "");
 				if(si->sockname.s) {
 					printf(" name %s", si->sockname.s);
 				}

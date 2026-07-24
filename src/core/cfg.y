@@ -332,6 +332,7 @@ extern char *default_routename;
 %token LISTEN
 %token ADVERTISE
 %token VIRTUAL
+%token HAPROXY
 %token STRNAME
 %token ALIAS
 %token SR_AUTO_ALIASES
@@ -870,6 +871,7 @@ socket_lattr:
 	| WORKERS EQUAL error { yyerror("number expected"); }
 	| VIRTUAL EQUAL NUMBER { if($3!=0) { tmp_sa.sflags |= SI_IS_VIRTUAL; } }
 	| VIRTUAL EQUAL error { yyerror("number expected"); }
+	| HAPROXY { tmp_sa.sflags |= SI_IS_HAPROXY; }
 	| SEMICOLON {}
 	;
 socket_lattrs:

@@ -308,6 +308,7 @@ XAVPVIAREPLYPARAMS	xavp_via_reply_params
 LISTEN		listen
 ADVERTISE	advertise|ADVERTISE
 VIRTUAL		virtual
+HAPROXY		haproxy
 STRNAME		name|NAME
 ALIAS		alias
 DOMAIN		domain
@@ -768,6 +769,7 @@ IMPORTFILE      "import_file"
 <INITIAL>{LISTEN}	{ count(); yylval.strval=yytext; return LISTEN; }
 <INITIAL>{ADVERTISE}	{ count(); yylval.strval=yytext; return ADVERTISE; }
 <INITIAL>{VIRTUAL}	{ count(); yylval.strval=yytext; return VIRTUAL; }
+<INITIAL>{HAPROXY}	{ count(); yylval.strval=yytext; return HAPROXY; }
 <INITIAL>{STRNAME}	{ count(); yylval.strval=yytext; return STRNAME; }
 <INITIAL>{ALIAS}	{ count(); yylval.strval=yytext; return ALIAS; }
 <INITIAL>{DOMAIN}	{ count(); yylval.strval=yytext; return DOMAIN; }

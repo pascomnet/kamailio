@@ -1228,7 +1228,8 @@ struct tcp_connection *tcpconn_new(int sock, union sockaddr_union *su,
 	local_timer_init(&c->timer, tcpconn_main_timeout, c, 0);
 
 	if(unlikely((ksr_tcp_accept_haproxy
-						|| (ksr_tcp_accept_protocols & KSR_TCPAP_HAPROXY))
+						|| (ksr_tcp_accept_protocols & KSR_TCPAP_HAPROXY)
+						|| (ba && (ba->flags & SI_IS_HAPROXY)))
 				&& state == S_CONN_ACCEPT)) {
 		ret = tcpconn_read_haproxy(c);
 		if(ret == -1) {
