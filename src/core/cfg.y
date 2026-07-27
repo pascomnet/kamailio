@@ -871,7 +871,8 @@ socket_lattr:
 	| WORKERS EQUAL error { yyerror("number expected"); }
 	| VIRTUAL EQUAL NUMBER { if($3!=0) { tmp_sa.sflags |= SI_IS_VIRTUAL; } }
 	| VIRTUAL EQUAL error { yyerror("number expected"); }
-	| HAPROXY { tmp_sa.sflags |= SI_IS_HAPROXY; }
+	| HAPROXY EQUAL NUMBER { if($3!=0) { tmp_sa.sflags |= SI_IS_HAPROXY; } }
+	| HAPROXY EQUAL error { yyerror("boolean value expected"); }
 	| SEMICOLON {}
 	;
 socket_lattrs:
