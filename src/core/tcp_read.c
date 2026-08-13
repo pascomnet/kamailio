@@ -1807,6 +1807,7 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 		}
 	} else {
 		/* not haproxy protocol */
+		LM_DBG("PROXY protocol header not found\n");
 		return 2;
 	}
 
@@ -1816,6 +1817,9 @@ done:
 	if(bytes == -1) {
 		LM_ERR("failed to consume PROXY header: %s\n", strerror(errno));
 		return -1;
+	}
+	if(retval == 1) {
+		LM_DBG("PROXY protocol did not override IP addresses\n");
 	}
 	return retval;
 }
@@ -1856,7 +1860,6 @@ int tcp_read_req(struct tcp_connection *con, int *bytes_read,
 			*bytes_read = 0;
 			return CONN_RELEASE;
 		}
-		/* ret > 0: header parsed or not a proxy header, proceed */
 	}
 
 	if(req->tvrstart.tv_sec == 0) {
