@@ -1371,6 +1371,45 @@ inline static struct tcp_connection *tcpconn_add(struct tcp_connection *c)
 	}
 }
 
+/* Rebuild aliases after the peer tuple has been updated, for example by the
+ * PROXY protocol parser. */
+void tcpconn_rehash_aliases(struct tcp_connection *c)
+{
+	struct ip_addr zero_ip;
+	int r;
+	int new_conn_alias_flags;
+
+	if(unlikely(c == NULL))
+		return;
+
+	ip_addr_mk_any(c->rcv.src_ip.af, &zero_ip);
+	new_conn_alias_flags = cfg_get(tcp, tcp_cfg, new_conn_alias_flags);
+
+	TCPCONN_LOCK;
+	for(r = 0; r < c->aliases; r++) {
+		tcpconn_listrm(tcpconn_aliases_hash[c->con_aliases[r].hash],
+				&c->con_aliases[r], next, prev);
+	}
+	c->aliases = 0;
+
+	_tcpconn_add_alias_unsafe(
+			c, c->rcv.src_port, &zero_ip, 0, new_conn_alias_flags);
+	if(likely(c->rcv.dst_ip.af && !ip_addr_any(&c->rcv.dst_ip))) {
+		_tcpconn_add_alias_unsafe(c, c->rcv.src_port, &c->rcv.dst_ip, 0,
+				new_conn_alias_flags);
+		_tcpconn_add_alias_unsafe(c, c->rcv.src_port, &c->rcv.dst_ip,
+				c->rcv.dst_port, new_conn_alias_flags);
+	}
+	if(unlikely(c->cinfo.dst_ip.af && !ip_addr_any(&c->cinfo.dst_ip)
+				&& !ip_addr_cmp(&c->rcv.dst_ip, &c->cinfo.dst_ip))) {
+		_tcpconn_add_alias_unsafe(c, c->rcv.src_port, &c->cinfo.dst_ip, 0,
+				new_conn_alias_flags);
+		_tcpconn_add_alias_unsafe(c, c->rcv.src_port, &c->cinfo.dst_ip,
+				c->cinfo.dst_port, new_conn_alias_flags);
+	}
+	TCPCONN_UNLOCK;
+}
+
 
 static inline void _tcpconn_detach(struct tcp_connection *c)
 {

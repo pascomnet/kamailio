@@ -48,6 +48,7 @@
 #include "pass_fd.h"
 #include "globals.h"
 #include "receive.h"
+#include "tcp_server.h"
 #include "timer.h"
 #include "local_timer.h"
 #include "ut.h"
@@ -1824,6 +1825,8 @@ done:
 		LM_ERR("failed to consume PROXY header: %s\n", strerror(errno));
 		return -1;
 	}
+	if(retval == 0)
+		tcpconn_rehash_aliases(c);
 	if(retval == 1) {
 		LM_DBG("PROXY protocol did not override IP addresses\n");
 	}
