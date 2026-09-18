@@ -1697,10 +1697,10 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 						src_ip->u.addr32[0] = hdr.v2.addr.ip4.src_addr;
 						c->rcv.src_port = htons(hdr.v2.addr.ip4.src_port);
 
-						dst_ip->af = AF_INET;
-						dst_ip->len = 4;
-						dst_ip->u.addr32[0] = hdr.v2.addr.ip4.dst_addr;
-						c->rcv.dst_port = htons(hdr.v2.addr.ip4.dst_port);
+						// dst_ip->af = AF_INET;
+						// dst_ip->len = 4;
+						// dst_ip->u.addr32[0] = hdr.v2.addr.ip4.dst_addr;
+						// c->rcv.dst_port = htons(hdr.v2.addr.ip4.dst_port);
 
 						goto done;
 
@@ -1710,10 +1710,10 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 						memcpy(src_ip->u.addr, hdr.v2.addr.ip6.src_addr, 16);
 						c->rcv.src_port = htons(hdr.v2.addr.ip6.src_port);
 
-						dst_ip->af = AF_INET6;
-						dst_ip->len = 16;
-						memcpy(dst_ip->u.addr, hdr.v2.addr.ip6.dst_addr, 16);
-						c->rcv.dst_port = htons(hdr.v2.addr.ip6.dst_port);
+						// dst_ip->af = AF_INET6;
+						// dst_ip->len = 16;
+						// memcpy(dst_ip->u.addr, hdr.v2.addr.ip6.dst_addr, 16);
+						// c->rcv.dst_port = htons(hdr.v2.addr.ip6.dst_port);
 
 						goto done;
 
@@ -1741,12 +1741,16 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 		if(strncmp(p, " TCP", 4) == 0) {
 			switch(p[4]) {
 				case '4':
-					src_ip->af = dst_ip->af = AF_INET;
-					src_ip->len = dst_ip->len = 4;
+					// src_ip->af = dst_ip->af = AF_INET;
+					// src_ip->len = dst_ip->len = 4;
+					src_ip->af = AF_INET;
+					src_ip->len = 4;
 					break;
 				case '6':
-					src_ip->af = dst_ip->af = AF_INET6;
-					src_ip->len = dst_ip->len = 16;
+					// src_ip->af = dst_ip->af = AF_INET6;
+					// src_ip->len = dst_ip->len = 16;
+					src_ip->af = AF_INET6;
+					src_ip->len = 16;
 					break;
 				default:
 					return -1; /* unknown TCP version */
@@ -1774,9 +1778,11 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 				return -1;
 			}
 			*end = '\0';
+			/*
 			if(inet_pton(dst_ip->af, p, dst_ip->u.addr) != 1) {
 				return -1;
 			}
+			*/
 			p = end + 1;
 
 			/* Parse the source port */
@@ -1796,7 +1802,7 @@ static int tcpconn_read_haproxy(struct tcp_connection *c)
 			if(port == UINT32_MAX || port == 0 || port >= (1 << 16)) {
 				return -1;
 			}
-			c->rcv.dst_port = port;
+			// c->rcv.dst_port = port;
 
 			goto done;
 		} else if(strncmp(p, " UNKNOWN", 8) == 0) {
